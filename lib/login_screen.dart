@@ -53,6 +53,9 @@ class LoginScreen extends StatelessWidget {
                   icon: Icons.apple,
                   bgColor: Colors.white,
                   textColor: Colors.black,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/appleLogin');
+                  },
                 ),
 
                 const SizedBox(height: 16),
@@ -62,8 +65,9 @@ class LoginScreen extends StatelessWidget {
                   context: context,
                   label: 'Mit Facebook anmelden',
                   icon: Icons.facebook,
-                  bgColor: Color(0xFF1877F2),
+                  bgColor: const Color(0xFF1877F2),
                   textColor: Colors.white,
+                  onPressed: () {},
                 ),
 
                 const SizedBox(height: 16),
@@ -75,6 +79,9 @@ class LoginScreen extends StatelessWidget {
                   icon: Icons.phone,
                   bgColor: Colors.white,
                   textColor: Colors.black,
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/phoneLogin');
+                  },
                 ),
 
                 const Spacer(),
@@ -108,6 +115,7 @@ class LoginScreen extends StatelessWidget {
     required IconData icon,
     required Color bgColor,
     required Color textColor,
+    required VoidCallback onPressed,
   }) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -115,9 +123,7 @@ class LoginScreen extends StatelessWidget {
         width: double.infinity,
         height: 50,
         child: ElevatedButton.icon(
-          onPressed: () {
-          Navigator.pushReplacementNamed(context, '/'); // Hier kannst du Navigation oder Login-Logik einfügen
-          },
+          onPressed: onPressed,
           icon: Icon(icon, color: textColor),
           label: Text(
             label,
