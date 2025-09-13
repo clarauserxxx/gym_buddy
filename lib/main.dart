@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const WelcomeScreen(),
+      home: const WelcomeScreen(), // Startseite deiner App
       routes: {
         '/login':(context) => const LoginScreen(),
         '/register':(context) => const RegisterScreen(),
@@ -28,6 +28,3 @@ class MyApp extends StatelessWidget {
         '/phoneLogin' : (context) => const PhoneLoginScreen(),
         '/appleLogin': (context) => const AppleLoginScreen(),
      },
-    );
-  }
-}
