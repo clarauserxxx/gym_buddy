@@ -8,19 +8,65 @@ class PhoneLoginScreen extends StatefulWidget {
 }
 
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
-  final _phoneCtrl = TextEditingController();
+  final TextEditingController _phoneCtrl = TextEditingController();
+  final TextEditingController _passwordCtrl = TextEditingController();
+
   String _countryCode = '+49';
+  bool _obscurePassword = true;
+  bool _isLoading = false;
 
   @override
   void dispose() {
     _phoneCtrl.dispose();
+    _passwordCtrl.dispose();
     super.dispose();
+  }
+
+  void _showError(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg)),
+    );
+  }
+
+  Future<void> _validateAndContinue() async {
+    final phone = _phoneCtrl.text.trim();
+    final password = _passwordCtrl.text;
+
+    if (phone.isEmpty) {
+      _showError('Bitte gib deine Telefonnummer ein.');
+      return;
+    }
+    if (phone.length < 6) {
+      _showError('Telefonnummer ist zu kurz.');
+      return;
+    }
+    if (password.isEmpty) {
+      _showError('Bitte gib dein Passwort ein.');
+      return;
+    }
+    if (password.length < 6) {
+      _showError('Passwort muss mindestens 6 Zeichen haben.');
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    // TODO: Hier später echte Auth einbauen (API/Firebase etc.)
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    setState(() => _isLoading = false);
+
+    // ✅ Erfolgreich -> nächste Seite
+    // Variante A: Route-Name (empfohlen)
+    Navigator.pushReplacementNamed(context, '/home');
+
+    // Variante B: Direkt auf ein Widget navigieren (falls du keine Routes nutzt)
+    // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Pfeil oben links – funktioniert automatisch mit Navigator.pop()
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -46,7 +92,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Land + Vorwahl
               const Text('Land', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               DecoratedBox(
@@ -64,7 +109,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                         DropdownMenuItem(value: '+43', child: Text('AT +43')),
                         DropdownMenuItem(value: '+41', child: Text('CH +41')),
                       ],
-                      onChanged: (v) => setState(() => _countryCode = v!),
+                      onChanged: (v) {
+                        if (v != null) setState(() => _countryCode = v);
+                      },
                     ),
                   ),
                 ),
@@ -72,7 +119,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
 
               const SizedBox(height: 16),
 
-              // Telefonnummer
               const Text('Telefonnummer', style: TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
               TextField(
@@ -85,9 +131,28 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 16),
+
+              const Text('Passwort', style: TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 6),
+              TextField(
+                controller: _passwordCtrl,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  hintText: 'Dein Passwort',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: IconButton(
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    icon: Icon(_obscurePassword ? Icons.visibility : Icons.visibility_off),
+                  ),
+                ),
+              ),
+
               const Spacer(),
 
-              // Datenschutzhinweis optional
               Row(
                 children: const [
                   Icon(Icons.lock, size: 16, color: Colors.black45),
@@ -105,14 +170,15 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
           ),
         ),
       ),
-
-      // Runder Weiter-Button unten rechts – wie im Screenshot
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // TODO: Hier verifizieren/weiterleiten (z. B. SMS-Code)
-          // Navigator.pushNamed(context, '/verify');
-        },
-        child: const Icon(Icons.arrow_forward),
+        onPressed: _isLoading ? null : _validateAndContinue,
+        child: _isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.arrow_forward),
       ),
     );
   }
